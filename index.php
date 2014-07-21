@@ -2,32 +2,6 @@
 <head>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="js/dice.js"></script>
-	<script>
-		var dice_sides = [4, 6, 8, 10, 12, 20, 100];
-		
-		$(document).ready(function()
-		{
-			add_dice(dice_sides);
-
-			$('#roll_dice').bind('click', function(event) {
-				event.preventDefault();
-
-				var data = $('#dice_combo').serialize();
-
-				$.ajax({
-					url: 'php/dice_roll.php', 
-					type: 'POST',
-					data: data,
-					dataType: 'json',
-					success: function (dice) {
-						console.log(dice.dice_roll[0]['roll_total']);
-						//alert(dice);
-					}
-				});
-
-			});
-		});
-	</script>
 
 </head>
 <body>
