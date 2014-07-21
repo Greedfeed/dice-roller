@@ -44,7 +44,9 @@ $(document).ready(function()
 	});
 });
 
-
+/**
+	Adds additional dice to the play field
+*/
 function add_dice(dice_sides) {
 	dice_total = $('.dice_amount').length + 1;
 	var dice_values = '';
@@ -53,15 +55,49 @@ function add_dice(dice_sides) {
 		dice_values += '<option value="'+dice_sides[i]+'">'+dice_sides[i]+'</option>';
 	}
 
-	var new_dice = $('<fieldset>'
+	var new_dice = $('<fieldset id="dice'+(dice_total-1)+'">'
 		+'<legend>Dice # '+dice_total+'</legend>'
 		+'<input name="dice_amount[]" class="dice_amount" type="number" value="1" min="1" max="9" />'
 		+' D '
-		+'<select name="dice_sides[]">'
+		+'<select name="dice_sides[]"  class="dice_sides">'
 			+dice_values
 		+'</select>'
 		+' + '
-		+'<input name="dice_modifier[]" type="number" value="0" />');
+		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="0" />');
 
 	$('#more_dice').before(new_dice);
+}
+
+/**
+	Allows you to save certain dice combinations as presets
+*/
+function save_preset() {
+	var preset_name = window.prompt('Please create a name for your preset:');
+	var dice_total = $('.dice_amount').length;
+
+	var dice_preset = {
+		"preset_name":	preset_name
+	};
+	
+	for(i=0;i<dice_total;i++) {
+		preset_amount		= $('#dice'+i+' .dice_amount').val();
+		preset_sides 		= $('#dice'+i+' .dice_sides').val();
+		preset_modifier 	= $('#dice'+i+' .dice_modifier').val();
+
+		dice_preset[i] = {
+			"dice_amount": 		preset_amount,
+			"dice_side": 		preset_sides,
+			"dice_modifier":	preset_modifier
+		};
+	}
+
+	$.ajax({
+		url: 'php/dice_preset.php', 
+		type: 'POST',
+		data: dice_preset,
+		//dataType: 'json',
+		success: function (data) {
+			alert(data);
+		}
+	});
 }

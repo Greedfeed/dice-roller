@@ -8,6 +8,7 @@
 
 	<form id="dice_combo" action="" method="POST">
 		<a id="more_dice" href="javascript:void(0);" onclick="add_dice(dice_sides);">Add more</a>
+		<a id="save_preset" href="javascript:void(0);" onclick="save_preset();">Save dice</a>
 		<input id="roll_dice" type="submit" value="Roll"/>
 	</form>
 
