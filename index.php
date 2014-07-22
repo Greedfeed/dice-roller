@@ -6,6 +6,10 @@
 </head>
 <body>
 
+	<select id="dice_presets" onchange="alert($('#dice_presets').val());">
+		<option>Select from a saved preset below</option>
+	</select>
+
 	<form id="dice_combo" action="" method="POST">
 		<a id="more_dice" href="javascript:void(0);" onclick="add_dice(dice_sides);">Add more</a>
 		<a id="save_preset" href="javascript:void(0);" onclick="save_preset();">Save dice</a>

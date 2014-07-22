@@ -3,6 +3,7 @@ var dice_sides = [4, 6, 8, 10, 12, 20, 100];
 $(document).ready(function()
 {
 	add_dice(dice_sides);
+	get_presets();
 
 	$('#roll_dice').bind('click', function(event) {
 		event.preventDefault();
@@ -91,13 +92,40 @@ function save_preset() {
 		};
 	}
 
-	$.ajax({
-		url: 'php/dice_preset.php', 
-		type: 'POST',
-		data: dice_preset,
-		//dataType: 'json',
-		success: function (data) {
-			alert(data);
+	if(typeof(Storage) !== "undefined") {
+		dice_present_name = 'dice_preset_'+dice_preset.preset_name;
+		stringy_dice_preset = JSON.stringify(dice_preset);
+
+		localStorage.setItem(dice_present_name ,stringy_dice_preset);
+	} 
+	else {
+		alert('Bummer! You can\'t save date with this browser, please use a real browser like Chrome or Firefox.');
+	}
+
+	console.log(localStorage.getItem(dice_present_name));
+
+	get_presets();
+}
+
+/**
+	Returns a list of preset dice combinations
+*/
+function get_presets() {
+	//Clear everything but the first value to 'refresh' the list
+	$('#dice_presets option:gt(0)').empty();
+
+	//this is how we know that the saved data is a dice preset and not another value
+	preset_prefix = 'dice_preset_';
+
+	for(i=0; i<localStorage.length; i++) {
+		var preset_key = localStorage.key(i);
+
+		//verify that this is a preset die and not another preset
+		if(preset_key.indexOf(preset_prefix) > -1)
+		{
+			preset_option = '<option value="'+preset_key+'">'+preset_key.replace(preset_prefix, "")+'</option>';
+			$('#dice_presets').append(preset_option);
 		}
-	});
+	}
+	//var stored_dice = JSON.parse(localStorage.getItem(dice_present_name));
 }
