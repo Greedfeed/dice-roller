@@ -56,7 +56,7 @@ function add_dice(dice_sides) {
 		dice_values += '<option value="'+dice_sides[i]+'">'+dice_sides[i]+'</option>';
 	}
 
-	var new_dice = $('<fieldset id="dice'+(dice_total-1)+'">'
+	var new_dice = $('<fieldset id="dice'+(dice_total-1)+'" class="dice">'
 		+'<legend>Dice # '+dice_total+'</legend>'
 		+'<input name="dice_amount[]" class="dice_amount" type="number" value="1" min="1" max="9" />'
 		+' D '
@@ -64,7 +64,8 @@ function add_dice(dice_sides) {
 			+dice_values
 		+'</select>'
 		+' + '
-		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="0" />');
+		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="0" />'
+		+'</fieldset>');
 
 	$('#more_dice').before(new_dice);
 }
@@ -117,7 +118,7 @@ function get_presets() {
 	//this is how we know that the saved data is a dice preset and not another value
 	preset_prefix = 'dice_preset_';
 
-	for(i=0; i<localStorage.length; i++) {
+	for(var i=0; i<localStorage.length; i++) {
 		var preset_key = localStorage.key(i);
 
 		//verify that this is a preset die and not another preset
@@ -127,5 +128,41 @@ function get_presets() {
 			$('#dice_presets').append(preset_option);
 		}
 	}
-	//var stored_dice = JSON.parse(localStorage.getItem(dice_present_name));
+}
+
+function set_preset(selected_preset) {
+	var selected_dice = JSON.parse(localStorage.getItem(selected_preset));
+	var dice_values = '';
+
+	$('.dice').remove();
+
+	for(var i=1;i<Object.keys(selected_dice).length;i++){
+		var dice_amount 	=  selected_dice[(i-1)].dice_amount;
+		var dice_side 		=  selected_dice[(i-1)].dice_side;
+		var dice_modifier 	=  selected_dice[(i-1)].dice_modifier;
+
+		//creating the list of dice available
+		for(var j=0; j<dice_sides.length;j++) {
+			if (dice_side == dice_sides[j]) {
+				dice_values += '<option value="'+dice_sides[j]+'" selected="selected">'+dice_sides[j]+'</option>';
+			}
+			else {
+				dice_values += '<option value="'+dice_sides[j]+'">'+dice_sides[j]+'</option>';
+			}
+		}
+
+
+		var new_dice = $('<fieldset id="dice'+(i-1)+'" class="dice">'
+			+'<legend>Dice # '+i+'</legend>'
+			+'<input name="dice_amount[]" class="dice_amount" type="number" value="'+dice_amount+'" min="1" max="9" />'
+			+' D '
+			+'<select name="dice_sides[]" class="dice_sides">'
+				+dice_values
+			+'</select>'
+			+' + '
+			+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="'+dice_modifier+'" />'
+			+'</fieldset>');
+
+		$('#more_dice').before(new_dice);
+	}
 }

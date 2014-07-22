@@ -6,7 +6,7 @@
 </head>
 <body>
 
-	<select id="dice_presets" onchange="alert($('#dice_presets').val());">
+	<select id="dice_presets" onchange="set_preset($('#dice_presets').val());">
 		<option>Select from a saved preset below</option>
 	</select>
 
