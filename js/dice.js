@@ -1,8 +1,6 @@
-var dice_sides = [4, 6, 8, 10, 12, 20, 100];
-		
 $(document).ready(function()
 {
-	add_dice(dice_sides);
+	set_dice();
 	get_presets();
 
 	$('#roll_dice').bind('click', function(event) {
@@ -46,28 +44,61 @@ $(document).ready(function()
 });
 
 /**
-	Adds additional dice to the play field
+	sets dice to the play field
 */
-function add_dice(dice_sides) {
-	dice_total = $('.dice_amount').length + 1;
-	var dice_values = '';
+function set_dice(dice_amount, dice_side, dice_modifier, dice_sides_override) {
+	//default set of dice
+	var dice_sides = [4, 6, 8, 10, 12, 20, 100];
 
+	//make sure values are defined, otherwise use default values
+	dice_amount 	= typeof dice_amount !== 'undefined' ? dice_amount : 1;
+	dice_side 		= typeof dice_side !== 'undefined' ? dice_side : dice_sides[0];
+	dice_modifier 	= typeof dice_modifier !== 'undefined' ? dice_modifier : 1;
+	dice_sides 		= typeof dice_sides_override !== 'undefined' ? dice_sides_override : dice_sides;
+
+	dice_total = $('.dice_amount').length + 1;
+	
+	var dice_values;
+	//creating the list of dice available
 	for(var i=0; i<dice_sides.length;i++) {
 		dice_values += '<option value="'+dice_sides[i]+'">'+dice_sides[i]+'</option>';
 	}
 
+	var dice_removal_link = '';
+	if(dice_total > 1){
+		dice_removal_link = ' <a href="javascript:void(0);" onclick="remove_dice('+(dice_total-1)+');">Remove die</a> ';
+	}
+
+	//constructing the HTML and preset values
 	var new_dice = $('<fieldset id="dice'+(dice_total-1)+'" class="dice">'
 		+'<legend>Dice # '+dice_total+'</legend>'
-		+'<input name="dice_amount[]" class="dice_amount" type="number" value="1" min="1" max="9" />'
+		+'<input name="dice_amount[]" class="dice_amount" type="number" value="'+dice_amount+'" min="1" max="9" />'
 		+' D '
 		+'<select name="dice_sides[]"  class="dice_sides">'
 			+dice_values
 		+'</select>'
 		+' + '
-		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="0" />'
+		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="'+dice_modifier+'" />'
+		+dice_removal_link
 		+'</fieldset>');
 
 	$('#more_dice').before(new_dice);
+	$('#dice'+(dice_total-1)+' .dice_sides').val(dice_side);
+}
+
+/**
+	Removes unwanted dice from the set
+*/
+function remove_dice(dice_number_removed) {
+	$('#dice'+dice_number_removed).remove();
+
+	for (var i=0; i<=$('.dice_amount').length; i++) {
+		if(i>=dice_number_removed) {
+			//must change this first or ruin the selection
+			$('#dice'+i+' legend').text('Dice # '+i);
+			$('#dice'+i).attr('id', 'dice'+(i-1));
+		}
+	}
 }
 
 /**
@@ -77,35 +108,36 @@ function save_preset() {
 	var preset_name = window.prompt('Please create a name for your preset:');
 	var dice_total = $('.dice_amount').length;
 
-	var dice_preset = {
-		"preset_name":	preset_name
-	};
-	
-	for(i=0;i<dice_total;i++) {
-		preset_amount		= $('#dice'+i+' .dice_amount').val();
-		preset_sides 		= $('#dice'+i+' .dice_sides').val();
-		preset_modifier 	= $('#dice'+i+' .dice_modifier').val();
-
-		dice_preset[i] = {
-			"dice_amount": 		preset_amount,
-			"dice_side": 		preset_sides,
-			"dice_modifier":	preset_modifier
+	if (preset_name != null)
+	{
+		var dice_preset = {
+			"preset_name":	preset_name
 		};
+		
+		for(i=0;i<dice_total;i++) {
+			preset_amount		= $('#dice'+i+' .dice_amount').val();
+			preset_sides 		= $('#dice'+i+' .dice_sides').val();
+			preset_modifier 	= $('#dice'+i+' .dice_modifier').val();
+
+			dice_preset[i] = {
+				"dice_amount": 		preset_amount,
+				"dice_side": 		preset_sides,
+				"dice_modifier":	preset_modifier
+			};
+		}
+
+		if(typeof(Storage) !== "undefined") {
+			dice_present_name = 'dice_preset_'+dice_preset.preset_name;
+			stringy_dice_preset = JSON.stringify(dice_preset);
+
+			localStorage.setItem(dice_present_name ,stringy_dice_preset);
+		} 
+		else {
+			alert('Bummer! You can\'t save date with this browser, please use a real browser like Chrome or Firefox.');
+		}
+
+		get_presets();
 	}
-
-	if(typeof(Storage) !== "undefined") {
-		dice_present_name = 'dice_preset_'+dice_preset.preset_name;
-		stringy_dice_preset = JSON.stringify(dice_preset);
-
-		localStorage.setItem(dice_present_name ,stringy_dice_preset);
-	} 
-	else {
-		alert('Bummer! You can\'t save date with this browser, please use a real browser like Chrome or Firefox.');
-	}
-
-	console.log(localStorage.getItem(dice_present_name));
-
-	get_presets();
 }
 
 /**
@@ -113,7 +145,7 @@ function save_preset() {
 */
 function get_presets() {
 	//Clear everything but the first value to 'refresh' the list
-	$('#dice_presets option:gt(0)').empty();
+	$('#dice_presets option:gt(0)').remove();
 
 	//this is how we know that the saved data is a dice preset and not another value
 	preset_prefix = 'dice_preset_';
@@ -130,39 +162,30 @@ function get_presets() {
 	}
 }
 
+
+/**
+	Sets the list of preset dice combinations
+*/
 function set_preset(selected_preset) {
-	var selected_dice = JSON.parse(localStorage.getItem(selected_preset));
-	var dice_values = '';
 
-	$('.dice').remove();
+	//before changing the dice make sure you can retrieve the value
+	if (JSON.parse(localStorage.getItem(selected_preset)) != null)
+	{
+		var selected_dice = JSON.parse(localStorage.getItem(selected_preset));
+		var dice_values = '';
 
-	for(var i=1;i<Object.keys(selected_dice).length;i++){
-		var dice_amount 	=  selected_dice[(i-1)].dice_amount;
-		var dice_side 		=  selected_dice[(i-1)].dice_side;
-		var dice_modifier 	=  selected_dice[(i-1)].dice_modifier;
+		$('.dice').remove();
 
-		//creating the list of dice available
-		for(var j=0; j<dice_sides.length;j++) {
-			if (dice_side == dice_sides[j]) {
-				dice_values += '<option value="'+dice_sides[j]+'" selected="selected">'+dice_sides[j]+'</option>';
-			}
-			else {
-				dice_values += '<option value="'+dice_sides[j]+'">'+dice_sides[j]+'</option>';
-			}
+		for(var i=1;i<Object.keys(selected_dice).length;i++){
+			var dice_amount 	=  selected_dice[(i-1)].dice_amount;
+			var dice_side 		=  selected_dice[(i-1)].dice_side;
+			var dice_modifier 	=  selected_dice[(i-1)].dice_modifier;
+
+			set_dice(dice_amount, dice_side, dice_modifier);
 		}
-
-
-		var new_dice = $('<fieldset id="dice'+(i-1)+'" class="dice">'
-			+'<legend>Dice # '+i+'</legend>'
-			+'<input name="dice_amount[]" class="dice_amount" type="number" value="'+dice_amount+'" min="1" max="9" />'
-			+' D '
-			+'<select name="dice_sides[]" class="dice_sides">'
-				+dice_values
-			+'</select>'
-			+' + '
-			+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="'+dice_modifier+'" />'
-			+'</fieldset>');
-
-		$('#more_dice').before(new_dice);
+	}
+	else {
+		$('.dice').remove();
+		set_dice();
 	}
 }
