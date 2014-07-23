@@ -39,7 +39,6 @@ $(document).ready(function()
 				$('#roll_result').append('<div id="grand_total"><p>Grand Total: '+dice.grand_total+'</p></div>');
 			}
 		});
-
 	});
 });
 
@@ -66,23 +65,23 @@ function set_dice(dice_amount, dice_side, dice_modifier, dice_sides_override) {
 
 	var dice_removal_link = '';
 	if(dice_total > 1){
-		dice_removal_link = ' <a href="javascript:void(0);" onclick="remove_dice('+(dice_total-1)+');">Remove die</a> ';
+		dice_removal_link = ' <a href="javascript:void(0);" class="remove_dice" onclick="remove_dice('+($('.dice_amount').length)+');">Remove die</a> ';
 	}
 
 	//constructing the HTML and preset values
 	var new_dice = $('<fieldset id="dice'+(dice_total-1)+'" class="dice">'
 		+'<legend>Dice # '+dice_total+'</legend>'
-		+'<input name="dice_amount[]" class="dice_amount" type="number" value="'+dice_amount+'" min="1" max="9" />'
+		+'<input name="dice_amount" class="dice_amount" type="number" value="'+dice_amount+'" min="1" max="9" />'
 		+' D '
-		+'<select name="dice_sides[]"  class="dice_sides">'
+		+'<select name="dice_sides"  class="dice_sides">'
 			+dice_values
 		+'</select>'
 		+' + '
-		+'<input name="dice_modifier[]" class="dice_modifier" type="number" value="'+dice_modifier+'" />'
+		+'<input name="dice_modifier" class="dice_modifier" type="number" value="'+dice_modifier+'" />'
 		+dice_removal_link
 		+'</fieldset>');
 
-	$('#more_dice').before(new_dice);
+	$('#set_dice').before(new_dice);
 	$('#dice'+(dice_total-1)+' .dice_sides').val(dice_side);
 }
 
@@ -96,6 +95,7 @@ function remove_dice(dice_number_removed) {
 		if(i>=dice_number_removed) {
 			//must change this first or ruin the selection
 			$('#dice'+i+' legend').text('Dice # '+i);
+			$('#dice'+i+' .remove_dice').attr('onclick', 'remove_dice('+(i-1)+')');
 			$('#dice'+i).attr('id', 'dice'+(i-1));
 		}
 	}
