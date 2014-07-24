@@ -1,12 +1,11 @@
 <html>
 <head>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="js/dice.js"></script>
+	
 
 </head>
 <body>
 
-	<select id="dice_presets" onchange="set_preset($('#dice_presets').val());">
+	<select id="dice_presets" onchange="set_preset( document.getElementById('dice_presets').value );">
 		<option>Select from a saved preset below</option>
 	</select>
 
@@ -18,4 +17,5 @@
 
 	<div id="roll_result"></div>
 </body>
+	<script src="js/dice.js"></script>
 </html>
