@@ -164,15 +164,17 @@ function save_preset() {
 			alert('Bummer! You can\'t save date with this browser, please use a real browser like Chrome or Firefox.');
 		}
 
-		get_presets();
+		get_presets(preset_name);
 	}
 }
 
 /**
 	Returns a list of preset dice combinations
 */
-function get_presets() {
+function get_presets(preset_name) {
 	//Clear everything but the first value to 'refresh' the list
+
+	preset_name 	= typeof preset_name !== 'undefined' ? preset_name : undefined;
 
 	//this is how we know that the saved data is a dice preset and not another value
 	var preset_prefix = 'dice_preset_';
@@ -184,7 +186,13 @@ function get_presets() {
 		//verify that this is a preset die and not another preset
 		if(preset_key.indexOf(preset_prefix) > -1)
 		{
-			preset_option += '<option value="'+preset_key+'">'+preset_key.replace(preset_prefix, "")+'</option>';
+			if (preset_name != undefined)
+			{
+				preset_option += '<option value="'+preset_key+'" selected="selected">'+preset_key.replace(preset_prefix, "")+'</option>';
+			}
+			else {
+				preset_option += '<option value="'+preset_key+'">'+preset_key.replace(preset_prefix, "")+'</option>';
+			}
 		}
 	}
 	var preset_total = document.getElementById('dice_presets').length;
@@ -223,6 +231,14 @@ function set_preset(selected_preset) {
 
 		set_dice();
 	}
+}
+
+/**
+	super simple function to clear localStorage
+*/
+function clear_presets() {
+	localStorage.clear();
+	get_presets();
 }
 
 /**
