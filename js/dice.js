@@ -239,6 +239,14 @@ function set_preset(selected_preset) {
 function clear_presets() {
 	localStorage.clear();
 	get_presets();
+
+	var dice = document.getElementsByClassName('dice');
+
+	while(dice[0]) {
+		dice[0].parentNode.removeChild(dice[0]);
+	}
+
+	set_dice();
 }
 
 /**
